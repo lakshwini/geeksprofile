@@ -6,12 +6,15 @@ services:
     ports:
       - "5001:5000"
     environment:
-      - MYSQL_HOST=mysql-db
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=
-      - MYSQL_DB=geekprofile
+      - MYSQL_HOST=${MYSQL_HOST:-mysql-db}
+      - MYSQL_USER=${MYSQL_USER:-root}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
+      - MYSQL_DB=${MYSQL_DB:-geekprofile}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
     depends_on:
-      - mysql-db
+      mysql-db:
+        condition: service_healthy
+    restart: unless-stopped
 
   mysql-db:
     image: mysql:8.0
@@ -21,6 +24,15 @@ services:
       - MYSQL_ROOT_HOST=%
       - MYSQL_DATABASE=geekprofile
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
-      - /opt/homebrew/var/mysql:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
