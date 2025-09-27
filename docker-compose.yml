@@ -4,7 +4,7 @@ services:
     ports:
       - "5001:5000"
     environment:
-      - MYSQL_HOST=host.docker.internal
+      - MYSQL_HOST=192.168.1.162
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=ton_mdp_mysql
+      - MYSQL_PASSWORD=""
       - MYSQL_DB=geekprofile
