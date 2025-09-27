@@ -6,7 +6,7 @@ services:
     environment:
       - MYSQL_HOST=10.10.107.83  # IP Mac
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
+      - MYSQL_PASSWORD=""
       - MYSQL_DB=geekprofile
       - MYSQL_PORT=3306
     
