@@ -17,9 +17,9 @@ services:
     image: mysql:8.0
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_HOST=%
       - MYSQL_DATABASE=geekprofile
     ports:
       - "3306:3306"
     volumes:
-      - /opt/homebrew/var/mysql:/var/lib/mysql   # ← bind mount vers ton datadir local
-
+      - /opt/homebrew/var/mysql:/var/lib/mysql
