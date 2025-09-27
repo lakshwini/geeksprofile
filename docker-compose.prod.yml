@@ -1,23 +1,16 @@
-services:
-  flask-app:
-    image: laksh1929/flask-app:latest  # ← Image Docker Hub
-    ports:
-      - "5001:5000"
-    environment:
-      - MYSQL_HOST=mysql-db  # ← MySQL dans le conteneur
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
-      - MYSQL_DB=geekprofile
-    depends_on:
-      - mysql-db
+#version: "3.8"
 
+services:
   mysql-db:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=geekprofile
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=geekprofile_test
+    ports:
+      - "3306:3306"
     volumes:
-      - mysql_prod_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
 
 volumes:
-  mysql_prod_data:
+  mysql_data:
