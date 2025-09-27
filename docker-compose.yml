@@ -1,12 +1,11 @@
-#version: "3.9"
-
 services:
-  flask-service:
+  flask-app:
     build: .
     ports:
       - "5001:5000"
     environment:
-      - MYSQL_HOST=host.docker.internal
+      - MYSQL_HOST=10.10.107.83  # ← IP de votre Mac
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=
+      - MYSQL_PASSWORD=root
       - MYSQL_DB=geekprofile
+    # SUPPRIMER depends_on car MySQL est sur le Mac

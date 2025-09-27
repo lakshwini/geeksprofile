@@ -2,14 +2,18 @@ CREATE DATABASE IF NOT EXISTS geekprofile;
 USE geekprofile;
 
 CREATE TABLE IF NOT EXISTS accounts (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(255) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  email VARCHAR(255),
-  organisation VARCHAR(255),
-  address VARCHAR(255),
-  city VARCHAR(100),
-  state VARCHAR(100),
-  country VARCHAR(100),
-  postalcode VARCHAR(50)
+    id int(11) NOT NULL AUTO_INCREMENT,
+    username varchar(50) NOT NULL,
+    password varchar(255) NOT NULL,
+    email varchar(100) NOT NULL,
+    organisation varchar(100) NOT NULL,
+    address varchar(100) NOT NULL,
+    city varchar(100) NOT NULL,
+    state varchar(100) DEFAULT NULL,
+    country varchar(100) NOT NULL,
+    postalcode varchar(10) NOT NULL,
+    PRIMARY KEY (id)
 );
+
+INSERT INTO accounts (username, password, email, organisation, address, city, country, postalcode) VALUES
+('testuser', 'testpass', 'test@example.com', 'Test Org', '123 Test St', 'Test City', 'Test Country', '12345');
