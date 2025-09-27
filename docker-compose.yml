@@ -1,0 +1,12 @@
+#version: "3.9"
+
+services:
+  flask-service:
+    build: .
+    ports:
+      - "5001:5000"
+    environment:
+      - MYSQL_HOST=host.docker.internal
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=
+      - MYSQL_DB=geekprofile

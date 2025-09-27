@@ -1,20 +1,22 @@
-# Store this code in 'app.py' file
-from flask import Flask, render_template, request, redirect, url_for, session
+import os
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 
 app = Flask(__name__)
+app.secret_key = "secret"
 
-app.secret_key = 'your secret key'
-
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'geekprofile'
+app.config['MYSQL_HOST'] = os.environ.get("MYSQL_HOST", "localhost")
+app.config['MYSQL_USER'] = os.environ.get("MYSQL_USER", "root")
+app.config['MYSQL_PASSWORD'] = os.environ.get("MYSQL_PASSWORD", "")
+app.config['MYSQL_DB'] = os.environ.get("MYSQL_DB", "geekprofile")
+app.config['MYSQL_PORT'] = int(os.environ.get("MYSQL_PORT", 3306))
 
 mysql = MySQL(app)
 
+
+# Routes HTML existantes (conservées pour l'interface web)
 @app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -129,5 +131,129 @@ def update():
         return render_template("update.html", msg=msg, account=account)
     return redirect(url_for('login'))
 
+# NOUVELLES ROUTES API POUR CURL
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    if not data or not data.get('username') or not data.get('password'):
+        return jsonify({'error': 'Username and password required'}), 400
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', 
+                  (data['username'], data['password']))
+    account = cursor.fetchone()
+    
+    if account:
+        return jsonify({
+            'success': True,
+            'message': 'Logged in successfully',
+            'user': {
+                'id': account['id'],
+                'username': account['username'],
+                'email': account['email']
+            }
+        })
+    else:
+        return jsonify({'success': False, 'error': 'Invalid credentials'}), 401
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    required_fields = ['username', 'password', 'email', 'address', 'city', 'country', 'postalcode', 'organisation']
+    for field in required_fields:
+        if field not in data:
+            return jsonify({'error': f'Missing field: {field}'}), 400
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM accounts WHERE username = %s', (data['username'],))
+    account = cursor.fetchone()
+    
+    if account:
+        return jsonify({'error': 'Account already exists'}), 400
+    
+    if not re.match(r'[^@]+@[^@]+\.[^@]+', data['email']):
+        return jsonify({'error': 'Invalid email address'}), 400
+    
+    if not re.match(r'[A-Za-z0-9]+', data['username']):
+        return jsonify({'error': 'Username must contain only characters and numbers'}), 400
+    
+    cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)', 
+                  (data['username'], data['password'], data['email'], data['organisation'], 
+                   data['address'], data['city'], data.get('state', ''), data['country'], data['postalcode']))
+    mysql.connection.commit()
+    
+    return jsonify({'success': True, 'message': 'User registered successfully'})
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+def api_get_user(user_id):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT id, username, email, organisation, address, city, state, country, postalcode FROM accounts WHERE id = %s', (user_id,))
+    account = cursor.fetchone()
+    
+    if account:
+        return jsonify({'success': True, 'user': account})
+    else:
+        return jsonify({'error': 'User not found'}), 404
+
+@app.route('/api/users/<int:user_id>', methods=['PUT'])
+def api_update_user(user_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT * FROM accounts WHERE id = %s', (user_id,))
+    account = cursor.fetchone()
+    
+    if not account:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Vérifier si le username existe déjà pour un autre utilisateur
+    if 'username' in data:
+        cursor.execute('SELECT * FROM accounts WHERE username = %s AND id != %s', (data['username'], user_id))
+        existing_account = cursor.fetchone()
+        if existing_account:
+            return jsonify({'error': 'Username already exists'}), 400
+    
+    # Mettre à jour les champs
+    update_fields = []
+    update_values = []
+    
+    field_mapping = {
+        'username': 'username',
+        'password': 'password',
+        'email': 'email',
+        'organisation': 'organisation',
+        'address': 'address',
+        'city': 'city',
+        'state': 'state',
+        'country': 'country',
+        'postalcode': 'postalcode'
+    }
+    
+    for field, db_field in field_mapping.items():
+        if field in data:
+            update_fields.append(f"{db_field} = %s")
+            update_values.append(data[field])
+    
+    if update_fields:
+        update_values.append(user_id)
+        query = f"UPDATE accounts SET {', '.join(update_fields)} WHERE id = %s"
+        cursor.execute(query, update_values)
+        mysql.connection.commit()
+    
+    return jsonify({'success': True, 'message': 'User updated successfully'})
+
+@app.route('/api/users', methods=['GET'])
+def api_get_all_users():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute('SELECT id, username, email, organisation, city, country FROM accounts')
+    accounts = cursor.fetchall()
+    
+    return jsonify({'success': True, 'users': accounts})
+
 if __name__ == "__main__":
-    app.run(host="localhost", port=5001, debug=True)  # Changez le port
+    app.run(host="0.0.0.0", port=5000, debug=True)
