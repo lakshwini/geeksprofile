@@ -4,8 +4,9 @@ services:
     ports:
       - "5001:5000"
     environment:
-      - MYSQL_HOST=10.10.107.83  # ← IP de votre Mac
+      - MYSQL_HOST=10.10.107.83  # IP Mac
       - MYSQL_USER=root
       - MYSQL_PASSWORD=root
       - MYSQL_DB=geekprofile
-    # SUPPRIMER depends_on car MySQL est sur le Mac
+      - MYSQL_PORT=3306
+    
