@@ -1,4 +1,4 @@
-#version: "3.9"
+version: "3.9"
 
 services:
   flask-app:
@@ -21,7 +21,5 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - /opt/homebrew/var/mysql:/var/lib/mysql   # ← bind mount vers ton datadir local
 
-volumes:
-  mysql_data:
