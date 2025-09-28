@@ -10,9 +10,11 @@ services:
     ports:
       - "3307:3306"
     volumes:
-      - mysql_prod_data:/data/db
+      - mysql_prod_data:/var/lib/mysql
       - ./mysql-init-prod:/docker-entrypoint-initdb.d
     restart: unless-stopped
+    networks:
+      - app-network  # ✅ AJOUTÉ
 
   flask-app-prod:
     image: ${DOCKER_USERNAME}/geeksprofile-app:latest
@@ -22,7 +24,7 @@ services:
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY}
-      - MYSQL_HOST=mysql-db-prod
+      - MYSQL_HOST=mysql-db-prod  # ✅ DOIT MARCHER MAINTENANT
       - MYSQL_USER=root
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DB=${MYSQL_DB}
@@ -30,6 +32,12 @@ services:
     depends_on:
       - mysql-db-prod
     restart: unless-stopped
+    networks:
+      - app-network  # ✅ AJOUTÉ
 
 volumes:
   mysql_prod_data:
+
+networks:
+  app-network:  # ✅ DÉCLARÉ
+    driver: bridge
