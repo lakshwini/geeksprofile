@@ -6,13 +6,11 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DB}
     ports:
-      - "3307:3306"
+      - "3306:3306"  # ✅ Changé à 3306 (standard)
     volumes:
       - mysql_prod_data:/var/lib/mysql
       - ./mysql-init-prod:/docker-entrypoint-initdb.d
     restart: unless-stopped
-    networks:
-      - app-network
 
   flask-app-prod:
     image: ${DOCKER_USERNAME}/geeksprofile-app:latest
@@ -22,20 +20,14 @@ services:
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY}
-      - MYSQL_HOST=mysql-db-prod
+      - MYSQL_HOST=localhost  # ✅ Changé à localhost
       - MYSQL_USER=root
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DB=${MYSQL_DB}
-      - MYSQL_PORT=3306
+      - MYSQL_PORT=3306  # ✅ Changé à 3306
     depends_on:
       - mysql-db-prod
     restart: unless-stopped
-    networks:
-      - app-network
 
 volumes:
   mysql_prod_data:
-
-networks:
-  app-network:
-    driver: bridge
