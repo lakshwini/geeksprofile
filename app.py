@@ -14,7 +14,16 @@ app.config['MYSQL_DB'] = os.environ.get("MYSQL_DB", "geekprofile")
 app.config['MYSQL_PORT'] = int(os.environ.get("MYSQL_PORT", 3306))
 
 mysql = MySQL(app)
-
+# Health check endpoint pour Docker et monitoring
+@app.route('/health')
+def health_check():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT 1")
+        cursor.close()
+        return jsonify({'status': 'healthy', 'database': 'connected'}), 200
+    except Exception as e:
+        return jsonify({'status': 'unhealthy', 'error': str(e)}), 500
 
 # Routes HTML existantes (conservées pour l'interface web)
 @app.route('/')
