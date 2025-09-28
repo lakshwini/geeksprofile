@@ -264,5 +264,26 @@ def api_get_all_users():
     
     return jsonify({'success': True, 'users': accounts})
 
+@app.route('/api/debug/db-info')
+def debug_db_info():
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute("SELECT DATABASE() as current_db, USER() as current_user")
+        db_info = cursor.fetchone()
+        
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+        
+        cursor.execute("SELECT * FROM accounts")
+        accounts = cursor.fetchall()
+        
+        return jsonify({
+            'database_info': db_info,
+            'tables': tables,
+            'all_accounts': accounts
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
