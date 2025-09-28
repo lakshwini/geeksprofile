@@ -1,9 +1,11 @@
-
+version: "3.8"
 
 services:
   mysql-prod:
     image: mysql:8.0
     container_name: mysql-prod
+    env_file:
+      - .env.prod  # ✅ AJOUTÉ
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DB}
@@ -26,6 +28,8 @@ services:
   flask-app-prod:
     image: laksh1929/geeksprofile-app:latest
     container_name: flask-app-prod
+    env_file:
+      - .env.prod  # ✅ AJOUTÉ
     ports:
       - "5000:5000"
     environment:
