@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   mysql-db-prod:
     image: mysql:8.0
@@ -14,7 +12,7 @@ services:
       - ./mysql-init-prod:/docker-entrypoint-initdb.d
     restart: unless-stopped
     networks:
-      - app-network  # ✅ AJOUTÉ
+      - app-network
 
   flask-app-prod:
     image: ${DOCKER_USERNAME}/geeksprofile-app:latest
@@ -24,7 +22,7 @@ services:
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY}
-      - MYSQL_HOST=mysql-db-prod  # ✅ DOIT MARCHER MAINTENANT
+      - MYSQL_HOST=mysql-db-prod
       - MYSQL_USER=root
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DB=${MYSQL_DB}
@@ -33,11 +31,11 @@ services:
       - mysql-db-prod
     restart: unless-stopped
     networks:
-      - app-network  # ✅ AJOUTÉ
+      - app-network
 
 volumes:
   mysql_prod_data:
 
 networks:
-  app-network:  # ✅ DÉCLARÉ
+  app-network:
     driver: bridge

@@ -1,8 +1,6 @@
-
-
+CREATE DATABASE IF NOT EXISTS geekprofile_prod;
 USE geekprofile_prod;
 
--- Table accounts (vide au départ)
 CREATE TABLE IF NOT EXISTS accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -16,4 +14,3 @@ CREATE TABLE IF NOT EXISTS accounts (
     postalcode VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
