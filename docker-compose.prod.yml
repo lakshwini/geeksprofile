@@ -1,16 +1,35 @@
-#version: "3.8"
+version: "3.8"
 
 services:
-  mysql-db:
+  mysql-db-prod:
     image: mysql:8.0
+    container_name: mysql-prod
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=geekprofile_test
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./mysql-init:/docker-entrypoint-initdb.d
+      - mysql_prod_data:/data/db
+      - ./mysql-init-prod:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  flask-app-prod:
+    image: ${DOCKER_USERNAME}/geeksprofile-app:latest
+    container_name: flask-app-prod
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - MYSQL_HOST=mysql-db-prod
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DB=${MYSQL_DB}
+      - MYSQL_PORT=3306
+    depends_on:
+      - mysql-db-prod
+    restart: unless-stopped
 
 volumes:
-  mysql_data:
+  mysql_prod_data:
