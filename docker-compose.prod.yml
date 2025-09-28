@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  mysql-db-prod:
+  mysql-prod:
     image: mysql:8.0
     container_name: mysql-prod
     environment:
@@ -24,13 +24,13 @@ services:
     environment:
       - FLASK_ENV=production
       - SECRET_KEY=${SECRET_KEY}
-      - MYSQL_HOST=mysql-db-prod  # ✅ Nom du service
+      - MYSQL_HOST=mysql-prod  # ✅ Nom du service
       - MYSQL_USER=root
       - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DB=${MYSQL_DB}
       - MYSQL_PORT=3306
     depends_on:
-      - mysql-db-prod
+      - mysql-prod
     restart: unless-stopped
     networks:
       - app-network
