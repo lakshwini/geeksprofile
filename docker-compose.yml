@@ -1,38 +1,14 @@
-version: "3.9"
-
 services:
   flask-app:
     build: .
     ports:
       - "5001:5000"
     environment:
-      - MYSQL_HOST=${MYSQL_HOST:-mysql-db}
-      - MYSQL_USER=${MYSQL_USER:-root}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-}
-      - MYSQL_DB=${MYSQL_DB:-geekprofile}
-      - MYSQL_PORT=${MYSQL_PORT:-3306}
-    depends_on:
-      mysql-db:
-        condition: service_healthy
+      - MYSQL_HOST=host.docker.internal  # Pour accéder au MySQL local
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=
+      - MYSQL_DB=geekprofile
+      - MYSQL_PORT=3306
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # Permet d'accéder à la machine hôte
     restart: unless-stopped
-
-  mysql-db:
-    image: mysql:8.0
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_ROOT_HOST=%
-      - MYSQL_DATABASE=geekprofile
-    ports:
-      - "${MYSQL_PORT:-3306}:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-    restart: unless-stopped
-
-volumes:
-  mysql_data:
