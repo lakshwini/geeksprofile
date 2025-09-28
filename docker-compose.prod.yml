@@ -1,4 +1,4 @@
-
+version: "3.8"
 
 services:
   mysql-prod:
@@ -14,7 +14,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_prod_data:/var/lib/mysql
-      - ./mysql-init-prod:/docker-entrypoint-initdb.d
+      - ./01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
     restart: unless-stopped
     networks:
       - app-network
@@ -35,7 +35,7 @@ services:
     environment:
       FLASK_ENV: production
       SECRET_KEY: ${SECRET_KEY}
-      MYSQL_HOST: mysql-prod  # ✅ CORRIGÉ (mysql-db-prod → mysql-prod)
+      MYSQL_HOST: mysql-prod
       MYSQL_USER: root
       MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DB: ${MYSQL_DB}
