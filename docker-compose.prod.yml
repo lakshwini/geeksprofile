@@ -7,6 +7,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_ROOT_HOST: '%'
     ports:
       - "3306:3306"
     volumes:
@@ -15,6 +16,12 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      timeout: 10s
+      retries: 5
+      interval: 30s
+      start_period: 30s
 
   flask-app-prod:
     image: laksh1929/geeksprofile-app:latest
@@ -22,15 +29,16 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FLASK_ENV=production
-      - SECRET_KEY=${SECRET_KEY}
-      - MYSQL_HOST=mysql-prod  # ✅ Nom du service
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DB=${MYSQL_DB}
-      - MYSQL_PORT=3306
+      FLASK_ENV: production
+      SECRET_KEY: ${SECRET_KEY}
+      MYSQL_HOST: mysql-prod
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DB: ${MYSQL_DB}
+      MYSQL_PORT: 3306
     depends_on:
-      - mysql-prod
+      mysql-prod:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - app-network
