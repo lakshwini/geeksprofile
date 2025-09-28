@@ -6,7 +6,7 @@ services:
     environment:
       - FLASK_ENV=development
       - SECRET_KEY=secret
-      - MYSQL_HOST=192.168.1.162  # IP directe de votre Mac
+      - MYSQL_HOST=host.docker.internal  # IP directe de votre Mac
       - MYSQL_USER=root
       - MYSQL_PASSWORD=
       - MYSQL_DB=geekprofile
