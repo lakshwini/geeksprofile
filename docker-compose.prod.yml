@@ -1,11 +1,11 @@
-version: "3.8"
+
 
 services:
   mysql-prod:
     image: mysql:8.0
     container_name: mysql-prod
     env_file:
-      - .env.prod  # ✅ AJOUTÉ
+      - .env.prod
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DB}
@@ -29,13 +29,13 @@ services:
     image: laksh1929/geeksprofile-app:latest
     container_name: flask-app-prod
     env_file:
-      - .env.prod  # ✅ AJOUTÉ
+      - .env.prod
     ports:
       - "5000:5000"
     environment:
       FLASK_ENV: production
       SECRET_KEY: ${SECRET_KEY}
-      MYSQL_HOST: mysql-prod
+      MYSQL_HOST: mysql-prod  # ✅ CORRIGÉ (mysql-db-prod → mysql-prod)
       MYSQL_USER: root
       MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DB: ${MYSQL_DB}
