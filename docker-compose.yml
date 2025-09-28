@@ -1,4 +1,3 @@
-#version: '3.8'
 
 services:
   flask-app:
@@ -8,13 +7,11 @@ services:
     environment:
       - FLASK_ENV=development
       - SECRET_KEY=secret
-      - MYSQL_HOST=host.docker.internal  # Pour accéder au MySQL local sur Mac
+      - MYSQL_HOST=192.168.1.162  # IP directe au lieu de host.docker.internal
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=  # Mot de passe vide pour MySQL local
+      - MYSQL_PASSWORD=
       - MYSQL_DB=geekprofile
       - MYSQL_PORT=3306
-    extra_hosts:
-      - "host.docker.internal:host-gateway"  # Permet d'accéder à la machine hôte
     restart: unless-stopped
     networks:
       - default
