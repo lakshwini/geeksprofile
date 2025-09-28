@@ -4,7 +4,7 @@ services:
     ports:
       - "5001:5000"
     environment:
-      - FLASK_ENV=env.local
+      - FLASK_ENV=development
       - SECRET_KEY=secret
       - MYSQL_HOST=192.168.1.162  # IP directe de votre Mac
       - MYSQL_USER=root
